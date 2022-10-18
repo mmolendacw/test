@@ -1,0 +1,353 @@
+    
+    <!-- Craftware NOTE: Sample code, hardcoded labels, styles, can be modified -->
+    <html>
+        <div id="evaluationModal" class="modal">
+            <div class="modal-content">
+                <span onclick="closeEvaluationModal()" class="close">&times;</span>
+            <div style="padding: 40px;">
+                <div style="display: flex;">
+                    <div class="in-row">
+                        Įvertinkite pokalbį:
+                    </div>
+                    <div class="rate">
+                        <input onclick="changeRatingValue(5)" type="radio" id="star5" name="rate" value="5" />
+                        <label for="star5" title="text">5 stars</label>
+                        <input onclick="changeRatingValue(4)" type="radio" id="star4" name="rate" value="4" />
+                        <label for="star4" title="text">4 stars</label>
+                        <input onclick="changeRatingValue(3)" type="radio" id="star3" name="rate" value="3" />
+                        <label for="star3" title="text">3 stars</label>
+                        <input onclick="changeRatingValue(2)" type="radio" id="star2" name="rate" value="2" />
+                        <label for="star2" title="text">2 stars</label>
+                        <input onclick="changeRatingValue(1)" type="radio" id="star1" name="rate" value="1" />
+                        <label for="star1" title="text">1 star</label>
+                    </div>
+                </div>
+                <p>Būtume dėkingi jei pakomentuotumėte savo vertinimą</p>
+                <textarea id="chatEvaluationComment" maxlength="500" style="width: 100%; resize: vertical;" placeholder="Comment here:"></textarea><br></br>
+                <label for="sendEmailWithConversationCheckbox">Send a copy of the conversation</label>
+                <input type="checkbox" onchange="handleSendEmailWithConversationChange(event)" id="sendEmailWithConversationCheckbox" name="sendEmailWithConversationCheckbox"></input>
+                <div id="emailContainer" hidden="true">
+                    <label for="conversationCopyEmail">Email</label>
+                    <input id="conversationCopyEmail" maxlength="80" name="conversationCopyEmail" size="20" type="text" style="width :50%; margin-top: 5%"></input><br></br>
+                </div>
+                <button onclick="submitChatEvaluation()" style="float: right; margin-top: 2%;"> Submit </button>
+                <button onclick="closeEvaluationModal()" style="float: right; margin-top: 2%; margin-right: 1%;"> Close </button>
+                <iframe id="chatEvaluationFrame" style="display:none"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div id="agentNoRespondingModal" class="modal">
+        <div class="modal-content">
+            <span onclick="closeAgentNoRespondingModal()" class="close">&times;</span>
+            
+            <p>Sorry, seems you are waiting for agent answer already 5 minutes. You can wait or we will contact you later</p>
+
+            <div id="webToCaseForm" class="web-to-case-form">
+                <!--  NOTE: Please add the following <META> element to your page <HEAD>.      -->
+                    <!--  If necessary, please modify the charset parameter to specify the        -->
+                    <!--  character set of your HTML page.                                        -->
+                    
+                <META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=UTF-8"></META>
+                <!-- Craftware NOTE: Need to update after production deployment -->
+                <form action="https://ksdigital--test.sandbox.my.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8" method="POST">
+                    <input type="hidden" name="orgid" value="00D5E000000DfXB"></input>
+                    <label for="name">Contact Name</label><input id="webToCaseName" maxlength="80" name="name" size="20" type="text" /><br></br>
+                    <label for="email">Email</label><input  id="webToCaseEmail" maxlength="80" name="email" size="20" type="text" /><br></br>
+                    <label for="phone">Phone</label><input  id="webToCasePhone" maxlength="40" name="phone" size="20" type="text" required="true" /><br></br>
+                    <label for="subject">Subject</label><input  id="webToCaseSubject" maxlength="80" name="subject" size="20" type="text" /><br></br>
+                    <label for="description">Description</label><textarea name="webToCaseDescription"></textarea><br></br>
+                    <select id="00N5E000002eFV0" name="00N5E000002eFV0" title="Shop" hidden="hidden">
+                        <option value="1a.lt" selected="selected">1a.lt</option>
+                    </select>
+                    <select  id="00N5E000002eFUz" name="00N5E000002eFUz" title="Country" hidden="hidden">
+                        <option value="LT" selected="selected"></option>
+                    </select>
+                    <input type="submit" name="submit" value="Submit"></input>
+                </form>
+            </div>
+            <button onclick="openWebToCaseForm()" style="float: right; margin-top: 2%;">
+                Contact
+            </button>
+            <button onclick="closeAgentNoRespondingModal()" style="float: right; margin-top: 2%; margin-right: 1%;">
+                Wait
+            </button>
+        </div>
+    </div>
+    
+    <style>
+        .announcement[embeddedService-chatHeaderAnnouncement_chatHeaderAnnouncement] {
+            visibility: hidden !important;
+        }
+        .in-row {
+            width: 40%;
+            padding-top: 5%;
+            padding-right: 5%;
+        }
+        .rate {
+            float: left;
+        }
+        .rate:not(:checked) > input {
+            position:absolute;
+            top:-9999px;
+        }
+        .rate:not(:checked) > label {
+            float:right;
+            width:1em;
+            overflow:hidden;
+            white-space:nowrap;
+            cursor:pointer;
+            font-size:50px;
+            color:#ccc;
+        }
+        .rate:not(:checked) > label:before {
+            content: "★ ";
+        }
+        .rate > input:checked ~ label {
+            color: #ffc700;
+        }
+        .rate:not(:checked) > label:hover,
+        .rate:not(:checked) > label:hover ~ label {
+            color: #deb217;
+        }
+        .rate > input:checked + label:hover,
+        .rate > input:checked + label:hover ~ label,
+        .rate > input:checked ~ label:hover,
+        .rate > input:checked ~ label:hover ~ label,
+        .rate > label:hover ~ input:checked ~ label {
+            color: #c59b08;
+        }
+        .modal {
+            display: block;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            border: 1px solid #888;
+            max-width: 550px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            padding: 1%;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+        }
+        .web-to-case-form {
+            display: none;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .embeddedServiceHelpButton .helpButton .uiButton {
+            background-color: #005290;
+            font-family: "Arial", sans-serif;
+        }
+        .embeddedServiceHelpButton .helpButton .uiButton:focus {
+            outline: 1px solid #005290;
+        }
+    </style>
+    
+    <script type="text/javascript" src="https://service.force.com/embeddedservice/5.0/esw.min.js"></script>
+    <script type="text/javascript">
+        let currentChatRate = 0;
+        let liveAgentSessionKey = null;
+        //Craftware NOTE: Need to update evaluationSiteUrl after production deployment
+        let evaluationSiteUrl = "https://test-ksd-site-test.cs84.force.com/ChatEvaluation";
+        //Craftware NOTE: modify chatUserLanguage before chat initialization to change chat language, eg. English: "en_US"(default when empty or no tranlations provided), Lithuanian: "lt", Estonian: "et", Latvian: "lv"
+        let chatUserLanguage = "lt";
+        //Craftware NOTE: agentWaitingTimeMs should be 5 minutes, for test purposes 5 seconds
+        //let agentWaitingTimeMs =  5 * 60 * 1000;
+        let agentWaitingTimeMs = 5 * 1000;
+        let isAgentJoined = false;
+        //Craftware NOTE: Need to update chatButtonIds after production deployment
+        let chatButtonId_LT ="5735E0000008Qo9";
+        let chatButtonId_LV ="5735E0000008QoJ";
+        let chatButtonId_ET ="5735E0000008QoE";
+        let chatButtonId_EN ="5735E0000008QoO";
+        let isSendEmailWithConversation = false;
+        
+        let initESW = function (gslbBaseURL) {
+            embedded_svc.settings.displayHelpButton = true;
+            embedded_svc.settings.enabledFeatures = ["LiveAgent"];
+            embedded_svc.settings.entryFeature = "LiveAgent";
+            embedded_svc.settings.language = chatUserLanguage;
+            
+            embedded_svc.addEventHandler("onAvailability", function(data) {
+                document.getElementsByClassName("embeddedServiceSidebarButton")[0].addEventListener(
+                    "click",
+                    () => {
+                        document.getElementById("webToCaseName").value = document.getElementById("FirstName").value + " " + document.getElementById("LastName").value;
+                        document.getElementById("webToCaseEmail").value = document.getElementById("Email").value;
+                        document.getElementById("conversationCopyEmail").value = document.getElementById("Email").value;
+                        document.getElementById("webToCasePhone").value = document.getElementById("MobilePhone").value;
+                    },
+                    {
+                        capture : true,
+                        once : true
+                    }
+                    )
+                });
+                
+            embedded_svc.addEventHandler("onChatRequestSuccess", function(data) {
+                isAgentJoined = false;
+                setTimeout(() => {
+                    if (!isAgentJoined){
+                        document.getElementById("agentNoRespondingModal").style.display = "block";
+                    }
+                }, agentWaitingTimeMs);
+            });
+            
+            embedded_svc.addEventHandler("onChatEstablished", function(data) {
+                isAgentJoined = true;
+                closeAgentNoRespondingModal();
+            });
+
+            embedded_svc.addEventHandler("onChatEndedByChasitor", function (data) {
+                liveAgentSessionKey = data.liveAgentSessionKey;
+                openEvaluationModal(data);
+            });
+
+            embedded_svc.addEventHandler("onChatEndedByAgent", function (data) {
+                liveAgentSessionKey = data.liveAgentSessionKey;
+                openEvaluationModal(data);
+            });
+
+            console.log(embedded_svc);
+            
+            //Craftware NOTE: Need to update after production deployment
+            embedded_svc.init(
+                "https://ksdigital--test.sandbox.my.salesforce.com",
+                "https://ksdigital--test.sandbox.my.salesforce-sites.com/trustpilot",
+                gslbBaseURL,
+                "00D5E000000DfXB",
+                "Chat_Agents",
+                {
+                    baseLiveAgentContentURL: "https://c.la2-c1cs-fra.salesforceliveagent.com/content",
+                    deploymentId: "5725E0000008PbN",
+                    buttonId: getButtonId(chatUserLanguage),
+                    baseLiveAgentURL: "https://d.la2-c1cs-fra.salesforceliveagent.com/chat",
+                    eswLiveAgentDevName: "Chat_Agents",
+                    isOfflineSupportEnabled: false
+                }
+                );
+
+
+                embedded_svc.init(
+                    'http://localhost.internal.salesforce.com:6109',
+                    'http://localhost.force.com:6109/test1',
+                    gslbBaseURL,
+                    '00Dxx0000001gEW',
+                    'omni_1', {
+                      baseLiveAgentContentURL: 'path/to/baseLiveAgentContentURL',
+                      deploymentId: '572xx0000000001',
+                      buttonId: '573xx0000000001',
+                      baseLiveAgentURL: 'path/to/baseLiveAgentURL',
+                      eswLiveAgentDevName: 'EmbeddedServiceLiveAgent_Parent04IRM0000004Dv12AE_16c4e028e49',
+                      isOfflineSupportEnabled: true
+                    }
+                  );
+        };
+
+        //Craftware NOTE: Need to update after production deployment
+        if (!window.embedded_svc) {
+            let s = document.createElement("script");
+            s.setAttribute("src", "https://ksdigital--test.sandbox.my.salesforce.com/embeddedservice/5.0/esw.min.js");
+            s.onload = function () {
+                initESW(null);
+            };
+            document.body.appendChild(s);
+        } else {
+            initESW("https://service.force.com");
+        }
+
+        function getButtonId(userLang) {
+            let languageToButtonMap = new Map([
+            ['lt', chatButtonId_LT],
+                ['lv', chatButtonId_LV],
+                ['et', chatButtonId_ET]
+                ]);
+                
+                return languageToButtonMap.has(userLang) ? languageToButtonMap.get(userLang) : chatButtonId_EN;
+            }
+            
+            function changeRatingValue(rate) {
+                currentChatRate = rate;
+            }
+            
+            function openEvaluationModal() {
+            document.getElementById("evaluationModal").style.display = "block";
+        }
+        
+        function handleSendEmailWithConversationChange(e) {
+            let emailContainer = document.getElementById("emailContainer");
+            isSendEmailWithConversation = e.target.checked;
+            if(isSendEmailWithConversation) {
+                emailContainer.removeAttribute("hidden");
+            } else {
+                emailContainer.setAttribute("hidden", true);
+            }
+        }
+        
+        function openWebToCaseForm() {
+            document.getElementById("webToCaseForm").style.display = "block";
+        }
+        
+        function closeAgentNoRespondingModal() {
+            let modal = document.getElementById("agentNoRespondingModal");
+            modal.style.display = "none";
+        }
+        
+        function closeEvaluationModal() {
+            let modal = document.getElementById("evaluationModal");
+            modal.style.display = "none";
+        }
+
+        function submitChatEvaluation() {
+            let parameters = "?currentChatRate=" + currentChatRate + "&liveAgentSessionKey=" + liveAgentSessionKey;
+            let comment = document.getElementById("chatEvaluationComment").value;
+            parameters += "&isSendEmailWithConversation=" + isSendEmailWithConversation;
+            parameters += "&conversationCopyEmail=" + document.getElementById("conversationCopyEmail").value;
+            parameters += comment.length>0? "&comment=" + comment: "";
+            document.getElementById("chatEvaluationFrame").src =  evaluationSiteUrl + parameters;
+            closeEvaluationModal();
+        }
+    </script>
+    
+    </html>
